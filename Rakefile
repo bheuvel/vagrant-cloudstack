@@ -2,6 +2,11 @@ require 'rubygems'
 require 'bundler/setup'
 require 'rspec/core/rake_task'
 
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.pattern = "*_spec.rb"
+  t.rspec_opts = "-fd"
+end
+
 # Immediately sync all stdout so that tools like buildbot can
 # immediately load in the output.
 $stdout.sync = true
@@ -64,8 +69,8 @@ namespace :functional_tests do
       puts ""
       ENV['TEST_NAME'] = "vagrant_cloudstack_functional_test-#{test_dir_name}"
       ENV['VAGRANT_VAGRANTFILE'] = vagrant_file
-      sh %{ vagrant up }
-      sh %{ vagrant destroy -f }
+
+      Rake::Task["spec"].execute
     end
     Dir.chdir(File.expand_path("../", __FILE__))
   end
@@ -81,9 +86,8 @@ namespace :functional_tests do
       puts ""
       ENV['TEST_NAME'] = "vagrant_cloudstack_functional_test-#{test_dir_name}"
       ENV['VAGRANT_VAGRANTFILE'] = vagrant_file
-      sh %{ vagrant up }
-      sh %{ vagrant ssh -c "ls /vagrant; echo;" }
-      sh %{ vagrant destroy -f }
+
+      Rake::Task["spec"].execute
     end
     Dir.chdir(File.expand_path("../", __FILE__))
   end
